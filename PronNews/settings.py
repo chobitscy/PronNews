@@ -13,6 +13,8 @@ cfg.read('config.ini', encoding='utf-8')
 db_host, db_port = cfg.get('db', 'host'), cfg.getint('db', 'port')
 db_user, db_password, db_name = cfg.get('db', 'user'), cfg.get('db', 'password'), cfg.get('db', 'name')
 env = cfg.get('server', 'env')
+scrapyd_host, scrapyd_port = cfg.get('scrapyd', 'host'), cfg.get('scrapyd', 'port')
+scrapyd_auth = cfg.get('scrapyd', 'auth')
 
 BOT_NAME = 'PronNews'
 
@@ -99,4 +101,12 @@ MYSQL = {
     'passwd': db_password,
     'db': db_name,
     'charset': 'utf8',
+}
+
+SCRAPYD = {
+    'host': scrapyd_host,
+    'port': scrapyd_port,
+    'auth': scrapyd_auth,
+    'project': project,
+    'spider': spider
 }
