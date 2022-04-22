@@ -16,8 +16,14 @@ class Pipeline(object):
 
     # 数据过滤
     def filer_item(self, result, item, spider):
-        sql = "UPDATE video SET rate = %s,screenshot = '%s',update_time = '%s',thumb = '%s' WHERE id = '%s'"
-        par = (item['rate'], item['screenshot'], datetime.datetime.now(), item['thumb'], result[0][0])
+        if item['create_date'] is not None:
+            sql = "UPDATE video SET screenshot = '%s',thumb = '%s',author = '%s',author_home = '%s',tags = '%s'" \
+                  ",create_date= '%s',update_time = '%s' WHERE id = '%s'"
+            par = (item['screenshot'], item['thumb'], item['author'], item['author_home'], item['tags'],
+                   item['create_date'], datetime.datetime.now(), result[0][0])
+        else:
+            sql = "UPDATE video SET state = -1 WHERE id = '%s'"
+            par = result[0][0]
         state = self.db_pool.runQuery(sql % par)
         state.addErrback(self.handle_error, item, spider)
 

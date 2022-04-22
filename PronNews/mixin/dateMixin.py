@@ -10,7 +10,7 @@ class DataMixin(object):
     def __init__(self):
         self.results = []
 
-    def last_week_vid(self):
+    def custom(self, sql):
         db_config = settings.MYSQL
         host = db_config['host']
         port = db_config['port']
@@ -20,7 +20,7 @@ class DataMixin(object):
         connect = pymysql.connect(host=host, port=port, user=user, password=password, db=db,
                                   cursorclass=pymysql.cursors.DictCursor)
         cursor = connect.cursor()
-        cursor.execute("SELECT vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()")
+        cursor.execute(sql)
         self.results = cursor.fetchall()
         cursor.close()
         connect.close()

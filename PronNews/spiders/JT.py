@@ -19,7 +19,8 @@ class JT(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        super().last_week_vid()
+        sql = "SELECT vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()"
+        super().custom(sql)
 
     def start_requests(self):
         for result in self.results:

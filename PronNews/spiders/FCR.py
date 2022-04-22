@@ -3,23 +3,24 @@ from functools import reduce
 import scrapy
 from bs4 import BeautifulSoup
 
-from PronNews.items.fc2 import Fc2
+from PronNews.items.FCR import Fc2
 from PronNews.mixin.dateMixin import DataMixin
 
 
 class Fc2Spider(scrapy.Spider, DataMixin):
-    name = 'fc2'
+    name = 'FCR'
     allowed_domains = ['adult.contents.fc2.com']
     base_url = 'https://adult.contents.fc2.com/article/%s/review'
     custom_settings = {
         'ITEM_PIPELINES': {
-            'PronNews.pipelines.fc2.Pipeline': 500,
+            'PronNews.pipelines.FCR.Pipeline': 500,
         }
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        super().last_week_vid()
+        sql = "SELECT vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()"
+        super().custom(sql)
 
     def start_requests(self):
         for result in self.results:
@@ -32,13 +33,8 @@ class Fc2Spider(scrapy.Spider, DataMixin):
         selector = soup.select('.items_comment_headerReviewInArea li > span')
         rate_list = reversed([int(n.get_text()) for n in selector])
         rate_list = [rate * index for index, rate in enumerate(rate_list, 1)]
-        screenshot_list = soup.select('.items_comment_SampleImageArea img')
         rate = reduce(lambda x, y: x + y, rate_list) if len(rate_list) != 0 else 0
-        screenshot = ','.join([n.get('src')[35:] for n in screenshot_list]) if len(screenshot_list) != 0 else ''
-        thumb = soup.select('.items_comment_MainitemThumb img')[0].get('src')
         fc2 = Fc2()
         fc2['vid'] = meta['vid']
         fc2['rate'] = rate
-        fc2['screenshot'] = screenshot
-        fc2['thumb'] = thumb
         yield fc2
