@@ -106,7 +106,5 @@ MYSQL = {
 SCRAPYD = {
     'host': scrapyd_host,
     'port': scrapyd_port,
-    'auth': scrapyd_auth,
-    'project': project,
-    'spider': spider
+    'auth': scrapyd_auth
 }
