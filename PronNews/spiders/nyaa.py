@@ -2,10 +2,12 @@ import datetime
 import re
 import time
 
+import requests
 import scrapy
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
 
+from PronNews import settings
 from PronNews.items.nyaa import Nyaa
 
 
@@ -60,3 +62,26 @@ class NyaaSpider(scrapy.Spider):
             return number * 1024
         elif size.find('MiB') != -1:
             return number
+
+    @staticmethod
+    def schedule(project, spider):
+        scrapyd = settings.SCRAPYD
+        headers = {
+            'Authorization': scrapyd['auth']
+        }
+        data = {
+            'project': project,
+            'spider': spider
+        }
+        response = requests.post('http://%s:%s/schedule.json' % (scrapyd['host'], scrapyd['port']), data=data,
+                                 headers=headers)
+        response.raise_for_status()
+
+    def close(self, spider, reason):
+        schedule_list = [
+            {'project': 'PN', 'spider': 'JT'},
+            {'project': 'PN', 'spider': 'FCR'},
+            {'project': 'PN', 'spider': 'FCD'}
+        ]
+        for task in schedule_list:
+            self.schedule(task['project'], task['spider'])
