@@ -18,7 +18,7 @@ class JibSpider(scrapy.Spider, DataMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
         sql = "SElECT a.vid AS vid,b.url AS url FROM video AS a LEFT JOIN redirect AS b ON a.vid = b.vid WHERE " \
-              "a.pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) " \
+              "a.pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW() " \
               "AND state = 1 AND (type_id = 2 OR type_id = 3)"
         super().custom(sql)
 
