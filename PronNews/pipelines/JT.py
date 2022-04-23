@@ -27,6 +27,6 @@ class Pipeline(object):
         print(failure)
 
     def process_item(self, item, spider):
-        query = self.db_pool.runQuery('SELECT id from video WHERE vid = %s' % item['vid'])
+        query = self.db_pool.runQuery("SELECT id from video WHERE vid = '%s'" % item['vid'])
         query.addCallback(self.filer_item, item, spider)
         query.addErrback(self.handle_error, item, spider)
