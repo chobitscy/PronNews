@@ -7,7 +7,7 @@ from PronNews.items.nyaa import Nyaa
 from PronNews.mixin.dateMixin import DataMixin
 
 
-class Fc2Spider(scrapy.Spider, DataMixin):
+class FCRSpider(scrapy.Spider, DataMixin):
     name = 'FCR'
     allowed_domains = ['adult.contents.fc2.com']
     base_url = 'https://adult.contents.fc2.com/article/%s/review'
@@ -19,7 +19,8 @@ class Fc2Spider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()"
+        sql = "SELECT vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()" \
+              " AND state = 1 AND type_id = 1"
         super().custom(sql)
 
     def start_requests(self):

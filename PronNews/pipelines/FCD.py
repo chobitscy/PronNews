@@ -18,9 +18,11 @@ class Pipeline(object):
     def filer_item(self, result, item, spider):
         if item['create_date'] is not None:
             sql = "UPDATE video SET screenshot = '%s',thumb = '%s',author = '%s',author_home = '%s',tags = '%s'" \
-                  ",create_date= '%s',update_time = '%s' WHERE id = '%s'"
+                  ",create_date= '%s',update_time = '%s',product = '%s' WHERE id = '%s'"
             par = (item['screenshot'], item['thumb'], item['author'], item['author_home'], item['tags'],
-                   item['create_date'], datetime.datetime.now(), result[0][0])
+                   item['create_date'], datetime.datetime.now(), item['product'], result[0][0])
+            if item['url'] is not None:
+                self.db_pool.runQuery("INSERT INTO redirect(vid,url) VALUES('%s','%s')" % (item['vid'], item['url']))
         else:
             sql = "UPDATE video SET state = -1 WHERE id = '%s'"
             par = result[0][0]
@@ -33,6 +35,6 @@ class Pipeline(object):
         print(failure)
 
     def process_item(self, item, spider):
-        query = self.db_pool.runQuery('SELECT id from video WHERE vid = %s' % item['vid'])
+        query = self.db_pool.runQuery("SELECT id from video WHERE vid = '%s'" % item['vid'])
         query.addCallback(self.filer_item, item, spider)
         query.addErrback(self.handle_error, item, spider)

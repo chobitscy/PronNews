@@ -19,3 +19,5 @@ class Nyaa(base):
     author_home = scrapy.Field()
     tags = scrapy.Field()
     create_date = scrapy.Field()
+    url = scrapy.Field()
+    product = scrapy.Field()

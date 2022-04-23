@@ -9,10 +9,11 @@ from dateutil.parser import parse
 
 from PronNews import settings
 from PronNews.items.nyaa import Nyaa
+from PronNews.utils import schedule
 
 
-class NyaaSpider(scrapy.Spider):
-    name = 'nyaa'
+class Fc2Spider(scrapy.Spider):
+    name = 'FC2'
     allowed_domains = ['sukebei.nyaa.si']
     base_site = 'https://sukebei.nyaa.si/?q=FC2&c=0_0&f=0&u=offkab&p=%d'
     custom_settings = {
@@ -64,25 +65,10 @@ class NyaaSpider(scrapy.Spider):
         elif size.find('MiB') != -1:
             return number
 
-    @staticmethod
-    def schedule(project, spider):
-        scrapyd = settings.SCRAPYD
-        headers = {
-            'Authorization': scrapyd['auth']
-        }
-        data = {
-            'project': project,
-            'spider': spider
-        }
-        response = requests.post('http://%s:%s/schedule.json' % (scrapyd['host'], scrapyd['port']), data=data,
-                                 headers=headers)
-        response.raise_for_status()
-
     def close(self, spider, reason):
-        schedule_list = [
+        task_list = [
             {'project': 'PN', 'spider': 'JT'},
             {'project': 'PN', 'spider': 'FCR'},
             {'project': 'PN', 'spider': 'FCD'}
         ]
-        for task in schedule_list:
-            self.schedule(task['project'], task['spider'])
+        schedule(task_list)

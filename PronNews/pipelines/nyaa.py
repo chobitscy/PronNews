@@ -41,7 +41,7 @@ class Pipeline(object):
         print(failure)
 
     def process_item(self, item, spider):
-        query = self.db_pool.runQuery('SELECT id from video WHERE vid = %s' % item['vid'])
+        query = self.db_pool.runQuery("SELECT id from video WHERE vid = '%s'" % item['vid'])
         query.addCallback(self.filer_item, item, spider)
         query.addErrback(self.handle_error, item, spider)
 
@@ -60,8 +60,9 @@ class Pipeline(object):
                 completed,
                 create_time,
                 update_time,
-                state)
-                values (%s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s)
+                state,
+                type_id)
+                values (%s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s)
                 """
         params = (item['id'],
                   item['vid'],
@@ -74,5 +75,6 @@ class Pipeline(object):
                   item['completed'],
                   item['create_time'],
                   item['update_time'],
-                  item['state'])
+                  item['state'],
+                  item['type_id'])
         cursor.execute(insert_sql, params)

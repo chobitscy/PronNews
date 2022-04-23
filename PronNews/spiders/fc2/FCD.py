@@ -1,4 +1,3 @@
-
 import scrapy
 from bs4 import BeautifulSoup
 
@@ -6,7 +5,7 @@ from PronNews.items.nyaa import Nyaa
 from PronNews.mixin.dateMixin import DataMixin
 
 
-class Fc2Spider(scrapy.Spider, DataMixin):
+class FCDSpider(scrapy.Spider, DataMixin):
     name = 'FCD'
     allowed_domains = ['adult.contents.fc2.com']
     base_url = 'https://adult.contents.fc2.com/article/%s/'
@@ -18,7 +17,7 @@ class Fc2Spider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT vid FROM video WHERE create_date is NULL AND state = 1"
+        sql = "SELECT vid FROM video WHERE create_date is NULL AND state = 1 AND type_id = 1"
         super().custom(sql)
 
     def start_requests(self):
@@ -33,18 +32,20 @@ class Fc2Spider(scrapy.Spider, DataMixin):
         screenshot = ','.join([n.get('src')[35:] for n in screenshot_list]) if len(screenshot_list) != 0 else ''
         thumb_ele = soup.select('.items_article_MainitemThumb img')
         thumb = thumb_ele[0].get('src') if len(thumb_ele) > 0 else None
-        author_ele = soup.select('.items_article_StarA+ li a')
-        author, author_home = (author_ele[0].get_text(), author_ele[0].get('href')) if len(author_ele) > 0 else (
-            None, None)
+        author = None
+        author_home = None
         tags = ','.join([n.get_text() for n in soup.select('.tagTag')])
         create_date_ele = soup.select('.items_article_Releasedate p')
         create_date = create_date_ele[0].get_text().split(':')[1].strip() if len(create_date_ele) > 0 else None
-        nyaa = Nyaa()
-        nyaa['vid'] = meta['vid']
-        nyaa['screenshot'] = screenshot
-        nyaa['thumb'] = thumb
-        nyaa['author'] = author
-        nyaa['author_home'] = author_home
-        nyaa['tags'] = tags
-        nyaa['create_date'] = create_date
-        yield nyaa
+        product_ele = soup.select('.items_article_StarA+ li a')
+        product = product_ele[0].get_text() if len(product_ele) != 0 else None
+        info = Nyaa()
+        info['vid'] = meta['vid']
+        info['screenshot'] = screenshot
+        info['thumb'] = thumb
+        info['author'] = author
+        info['author_home'] = author_home
+        info['tags'] = tags
+        info['create_date'] = create_date
+        info['product'] = product
+        yield info
