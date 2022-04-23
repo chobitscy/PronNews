@@ -17,9 +17,9 @@ class Pipeline(object):
     # 数据过滤
     def filer_item(self, result, item, spider):
         if item['create_date'] is not None:
-            sql = "UPDATE video SET screenshot = '%s',thumb = '%s',author = '%s',author_home = '%s',tags = '%s'" \
-                  ",create_date= '%s',update_time = '%s',product = '%s' WHERE id = '%s'"
-            par = (item['screenshot'], item['thumb'], item['author'], item['author_home'], item['tags'],
+            sql = "UPDATE video SET rate = '%s',screenshot = '%s',thumb = '%s',author = '%s',author_home = '%s'" \
+                  ",tags = '%s',create_date= '%s',update_time = '%s',product = '%s' WHERE id = '%s'"
+            par = (item['rate'], item['screenshot'], item['thumb'], item['author'], item['author_home'], item['tags'],
                    item['create_date'], datetime.datetime.now(), item['product'], result[0][0])
             if item['url'] is not None:
                 self.db_pool.runQuery("INSERT INTO redirect(vid,url) VALUES('%s','%s')" % (item['vid'], item['url']))

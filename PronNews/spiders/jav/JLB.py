@@ -42,7 +42,7 @@ class JibSpider(scrapy.Spider, DataMixin):
         create_date_ele = soup.select('#video_date .text')
         create_date = create_date_ele[0].get_text() if len(create_date_ele) != 0 else ''
         rate_ele = soup.select('.score')
-        rate = rate_ele[0].get_text() if len(rate_ele) != 0 else 0
+        rate = rate_ele[0].get_text()[1:-1] if len(rate_ele) != 0 else 0
         product_ele = soup.select('#video_maker a')
         product = product_ele[0].get_text() if len(product_ele) != 0 else None
         info = Nyaa()
