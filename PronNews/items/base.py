@@ -9,3 +9,4 @@ class base(scrapy.Item):
     create_time = scrapy.Field()
     update_time = scrapy.Field()
     state = scrapy.Field()
+    type_id = scrapy.Field()

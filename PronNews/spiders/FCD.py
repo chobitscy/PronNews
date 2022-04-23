@@ -1,9 +1,8 @@
-from functools import reduce
 
 import scrapy
 from bs4 import BeautifulSoup
 
-from PronNews.items.FCD import FCD
+from PronNews.items.nyaa import Nyaa
 from PronNews.mixin.dateMixin import DataMixin
 
 
@@ -40,12 +39,12 @@ class Fc2Spider(scrapy.Spider, DataMixin):
         tags = ','.join([n.get_text() for n in soup.select('.tagTag')])
         create_date_ele = soup.select('.items_article_Releasedate p')
         create_date = create_date_ele[0].get_text().split(':')[1].strip() if len(create_date_ele) > 0 else None
-        fcd = FCD()
-        fcd['vid'] = meta['vid']
-        fcd['screenshot'] = screenshot
-        fcd['thumb'] = thumb
-        fcd['author'] = author
-        fcd['author_home'] = author_home
-        fcd['tags'] = tags
-        fcd['create_date'] = create_date
-        yield fcd
+        nyaa = Nyaa()
+        nyaa['vid'] = meta['vid']
+        nyaa['screenshot'] = screenshot
+        nyaa['thumb'] = thumb
+        nyaa['author'] = author
+        nyaa['author_home'] = author_home
+        nyaa['tags'] = tags
+        nyaa['create_date'] = create_date
+        yield nyaa

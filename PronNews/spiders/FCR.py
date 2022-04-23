@@ -3,7 +3,7 @@ from functools import reduce
 import scrapy
 from bs4 import BeautifulSoup
 
-from PronNews.items.FCR import Fc2
+from PronNews.items.nyaa import Nyaa
 from PronNews.mixin.dateMixin import DataMixin
 
 
@@ -34,7 +34,7 @@ class Fc2Spider(scrapy.Spider, DataMixin):
         rate_list = reversed([int(n.get_text()) for n in selector])
         rate_list = [rate * index for index, rate in enumerate(rate_list, 1)]
         rate = reduce(lambda x, y: x + y, rate_list) if len(rate_list) != 0 else 0
-        fc2 = Fc2()
-        fc2['vid'] = meta['vid']
-        fc2['rate'] = rate
-        yield fc2
+        nyaa = Nyaa()
+        nyaa['vid'] = meta['vid']
+        nyaa['rate'] = rate
+        yield nyaa
