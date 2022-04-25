@@ -28,7 +28,7 @@ class DataMixin(object):
 
     def flushall(self):
         _config = settings.REDIS
-        redis = StrictRedis(host=_config['host'], port=_config['host'], username=_config['user'],
+        redis = StrictRedis(host=_config['host'], port=_config['port'], username=_config['user'],
                             password=_config['password'], db=_config['db'], )
         redis.flushall()
         redis.close()
