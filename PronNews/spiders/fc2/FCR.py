@@ -39,3 +39,6 @@ class FCRSpider(scrapy.Spider, DataMixin):
         nyaa['vid'] = meta['vid']
         nyaa['rate'] = rate
         yield nyaa
+
+    def close(self, spider, reason):
+        super().flushall()

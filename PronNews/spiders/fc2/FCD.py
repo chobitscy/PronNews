@@ -49,3 +49,6 @@ class FCDSpider(scrapy.Spider, DataMixin):
         info['create_date'] = create_date
         info['product'] = product
         yield info
+
+    def close(self, spider, reason):
+        super().flushall()

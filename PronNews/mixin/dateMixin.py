@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pymysql
+from redis import StrictRedis
 
 from PronNews import settings
 
@@ -24,3 +25,10 @@ class DataMixin(object):
         self.results = cursor.fetchall()
         cursor.close()
         connect.close()
+
+    def flushall(self):
+        _config = settings.REDIS
+        redis = StrictRedis(host=_config['host'], port=_config['host'], username=_config['user'],
+                            password=_config['password'], db=_config['db'], )
+        redis.flushall()
+        redis.close()

@@ -15,6 +15,8 @@ db_user, db_password, db_name = cfg.get('db', 'user'), cfg.get('db', 'password')
 env = cfg.get('server', 'env')
 scrapyd_host, scrapyd_port = cfg.get('scrapyd', 'host'), cfg.get('scrapyd', 'port')
 scrapyd_auth = cfg.get('scrapyd', 'auth')
+redis_host, redis_port = cfg.get('redis', 'host'), cfg.getint('redis', 'port')
+redis_user, redis_password, redis_db = cfg.get('redis', 'user'), cfg.get('redis', 'password'), cfg.getint('redis', 'db')
 
 BOT_NAME = 'PronNews'
 
@@ -107,4 +109,12 @@ SCRAPYD = {
     'host': scrapyd_host,
     'port': scrapyd_port,
     'auth': scrapyd_auth
+}
+
+REDIS = {
+    'host': redis_host,
+    'port': redis_port,
+    'user': redis_user,
+    'password': redis_password,
+    'db': redis_db
 }
