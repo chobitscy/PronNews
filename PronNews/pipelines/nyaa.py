@@ -60,9 +60,8 @@ class Pipeline(object):
                 completed,
                 create_time,
                 update_time,
-                state,
-                type_id)
-                values (%s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s)
+                state)
+                values (%s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s)
                 """
         params = (item['id'],
                   item['vid'],
@@ -75,6 +74,5 @@ class Pipeline(object):
                   item['completed'],
                   item['create_time'],
                   item['update_time'],
-                  item['state'],
-                  item['type_id'])
+                  item['state'])
         cursor.execute(insert_sql, params)

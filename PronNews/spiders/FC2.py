@@ -50,7 +50,6 @@ class Fc2Spider(scrapy.Spider):
                 info['speeders'] = speeders
                 info['downloads'] = downloads
                 info['completed'] = completed
-                info['type_id'] = 1
                 count += 1
                 yield info
         if len(items) == count:

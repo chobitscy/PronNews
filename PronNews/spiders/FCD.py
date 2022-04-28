@@ -17,7 +17,7 @@ class FCDSpider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT vid FROM video WHERE create_date is NULL AND state = 1 AND type_id = 1"
+        sql = "SELECT vid FROM video WHERE create_date is NULL AND state = 1"
         super().custom(sql)
 
     def start_requests(self):
