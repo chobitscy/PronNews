@@ -43,7 +43,7 @@ class FCDSpider(scrapy.Spider, DataMixin):
         info['thumb'] = thumb
         info['product'] = product
         info['product_home'] = product_home
-        info['tags'] = tags
+        info['tid'] = tags
         info['create_date'] = create_date
         yield info
 

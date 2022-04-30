@@ -7,7 +7,6 @@ import scrapy
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
 
-from PronNews import settings
 from PronNews.items.nyaa import Nyaa
 from PronNews.utils import schedule
 
@@ -18,7 +17,7 @@ class Fc2Spider(scrapy.Spider):
     base_site = 'https://sukebei.nyaa.si/?q=FC2&c=0_0&f=0&u=offkab&p=%d'
     custom_settings = {
         'ITEM_PIPELINES': {
-            'PronNews.pipelines.nyaa.Pipeline': 500,
+            'PronNews.pipelines.FC2.Pipeline': 500,
         }
     }
     page_no = 1

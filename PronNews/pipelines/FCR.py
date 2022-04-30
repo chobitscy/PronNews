@@ -1,32 +1,45 @@
 import datetime
 
-from twisted.enterprise import adbapi
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from PronNews import settings
+from PronNews.model.video import Video
 
 
 class Pipeline(object):
 
-    def __init__(self, db_pool):
-        self.db_pool = db_pool
-
-    @classmethod
-    def from_settings(cls, settings):
-        db_params = settings.get('MYSQL')
-        db_pool = adbapi.ConnectionPool('pymysql', **db_params)
-        return cls(db_pool)
-
-    # 数据过滤
-    def filer_item(self, result, item, spider):
-        sql = "UPDATE video SET rate = %s,update_time = '%s' WHERE id = '%s'"
-        par = (item['rate'], datetime.datetime.now(), result[0][0])
-        state = self.db_pool.runQuery(sql % par)
-        state.addErrback(self.handle_error, item, spider)
-
-    # 错误处理
-    @staticmethod
-    def handle_error(failure, item, spider):
-        print(failure)
+    def __init__(self):
+        config = settings.MYSQL
+        engine_config = 'mysql+mysqlconnector://%s:%s@%s:%s/%s?charset=utf8' % (
+            config['user'], config['passwd'], config['host'], config['port'], config['db'])
+        self.engine = create_engine(engine_config)
+        self.DBSession = sessionmaker(bind=self.engine)
+        self.session = self.DBSession()
+        self.items = []
 
     def process_item(self, item, spider):
-        query = self.db_pool.runQuery('SELECT id from video WHERE vid = %s' % item['vid'])
-        query.addCallback(self.filer_item, item, spider)
-        query.addErrback(self.handle_error, item, spider)
+        self.items.append(item)
+
+    def close_spider(self, spider):
+        if len(self.items) == 0:
+            self.session.close()
+            return
+        targets = self.session.query(Video).filter(Video.vid.in_([n['vid'] for n in self.items])).with_entities(
+            Video.vid, Video.id).all()
+
+        id_with_vid = dict(targets)
+
+        update = []
+
+        for item in self.items:
+            if item['vid'] in list(id_with_vid.keys()):
+                update.append({
+                    'id': id_with_vid[item['vid']],
+                    'rate': item['rate'],
+                    'update_time': datetime.datetime.now()
+                })
+
+        self.session.bulk_update_mappings(Video, update)
+        self.session.commit()
+        self.session.close()

@@ -14,12 +14,12 @@ basics = declarative_base()
 class Product(basics, Base):
     __tablename__ = 'product'
     name = Column(Text)
-    home = Column(String)
+    home = Column(Text)
     avatar = Column(String)
 
     def __init__(self, name, home, avatar):
         self.name = name
-        self.home = home,
+        self.home = home
         self.avatar = avatar
         now = datetime.datetime.now()
         self.id = get_snowflake_uuid()
