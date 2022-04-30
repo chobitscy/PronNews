@@ -1,3 +1,5 @@
+import re
+
 import requests
 import snowflake.client
 
@@ -21,3 +23,10 @@ def schedule(task_list):
         response = requests.post('http://%s:%s/schedule.json' % (scrapyd['host'], scrapyd['port']), data=data,
                                  headers=headers)
         response.raise_for_status()
+
+
+def figure_from_str(text: str):
+    try:
+        return int(''.join(re.findall(r"\d+", text)))
+    except ValueError:
+        return 0
