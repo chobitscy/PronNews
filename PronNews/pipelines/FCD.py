@@ -1,45 +1,49 @@
 import datetime
 
-import pymysql
-from scrapy import Spider
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-from PronNews.utils import get_snowflake_uuid
+from PronNews import settings
+from PronNews.model.product import Product
+from PronNews.model.video import Video
 
 
 class Pipeline(object):
 
-    def __init__(self, spider: Spider):
-        config = spider.settings.get('MYSQL')
-        self.connect = pymysql.connect(host=config['host'], user=config['user'], passwd=config['passwd'],
-                                       db=config['db'])
-        self.cursor = self.connect.cursor()
+    def __init__(self):
+        config = settings.MYSQL
+        engine_config = 'mysql+mysqlconnector://%s:%s@%s:%s/%s?charset=utf8' % (
+            config['user'], config['passwd'], config['host'], config['port'], config['db'])
+        self.engine = create_engine(engine_config)
+        self.DBSession = sessionmaker(bind=self.engine)
+        self.session = self.DBSession()
 
     def process_item(self, item, spider):
-        result = self.cursor.execute("SELECT id,create_date from video WHERE vid = '%s'" % item['vid'])
-        _id = result[0][0]
-        create_date = result[0][1]
-        if item['create_date'] is not None and create_date is None:
-            pq = self.cursor.execute("SELECT id FROM product WHERE name = '%s'" % item['product'])
-            pid = pq[0][0]
-            if pq is None:
-                now = datetime.datetime.now()
-                pid = get_snowflake_uuid()
-                sql = """
-                INSERT INTO product(id,name,home,create_time,update_time,state) 
-                value('%s','%s','%s','%s','%s')
-                """
-                self.cursor.execute(
-                    sql % (pid, item['product'], item['product_home'], now, now, 1))
-                self.connect.commit()
-            self.cursor.execute(
-                "UPDATE video SET screenshot = '%s',thumb = '%s',tags = '%s',create_date= '%s',update_time = '%s'" \
-                ",pid = '%s' WHERE id = '%s'" % (item['screenshot'], item['thumb'], item['tags'], item['create_date'],
-                                                 datetime.datetime.now(), pid, _id))
-            self.connect.commit()
+        target = self.session.query(Video).filter(Video.vid == item['vid']).one()
+        _id = target.id
+        if item['create_date'] is not None and target.create_date is None:
+            product = self.session.query(Product).filter(Product.name == item['product']).one()
+            if product is None:
+                pd = Product(item['product'], item['product_home'], None)
+                pid = pd.id
+                self.session.add(pd)
+                self.session.commit()
+            else:
+                pid = product.id
+            self.session.query(Video).filter(Video.id == _id).update({
+                Video.screenshot: item['screenshot'],
+                Video.thumb: item['thumb'],
+                Video.tid: item['tags'],
+                Video.create_date: item['create_date'],
+                Video.update_time: datetime.datetime.now(),
+                Video.pid: pid
+            })
+            self.session.commit()
         elif item['create_date'] is None:
-            self.cursor.execute("UPDATE video SET state = -1 WHERE id = '%s'" % _id)
-            self.connect.commit()
+            self.session.query(Video).filter(Video.id == _id).update({
+                Video.state: -1
+            })
+            self.session.commit()
 
     def close_spider(self, spider):
-        self.cursor.close()
-        self.connect.close()
+        self.session.close()
