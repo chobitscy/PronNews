@@ -32,22 +32,19 @@ class FCDSpider(scrapy.Spider, DataMixin):
         screenshot = ','.join([n.get('src')[35:] for n in screenshot_list]) if len(screenshot_list) != 0 else ''
         thumb_ele = soup.select('.items_article_MainitemThumb img')
         thumb = thumb_ele[0].get('src') if len(thumb_ele) > 0 else None
-        author = None
-        author_home = None
         tags = ','.join([n.get_text() for n in soup.select('.tagTag')])
         create_date_ele = soup.select('.items_article_Releasedate p')
         create_date = create_date_ele[0].get_text().split(':')[1].strip() if len(create_date_ele) > 0 else None
         product_ele = soup.select('.items_article_StarA+ li a')
-        product = product_ele[0].get_text() if len(product_ele) != 0 else None
+        product, product_home = product_ele[0].get_text(), product_ele[0].get('href') if len(product_ele) != 0 else None
         info = Nyaa()
         info['vid'] = meta['vid']
         info['screenshot'] = screenshot
         info['thumb'] = thumb
-        info['author'] = author
-        info['author_home'] = author_home
-        info['tags'] = tags
-        info['create_date'] = create_date
         info['product'] = product
+        info['product_home'] = product_home
+        info['tid'] = tags
+        info['create_date'] = create_date
         yield info
 
     def close(self, spider, reason):

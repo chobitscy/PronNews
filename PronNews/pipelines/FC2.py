@@ -2,10 +2,11 @@ import datetime
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from twisted.enterprise import adbapi
 
 from PronNews import settings
+from PronNews.items.nyaa import Nyaa
 from PronNews.model.video import Video
+from PronNews.utils import get_snowflake_uuid
 
 
 class Pipeline(object):
@@ -24,23 +25,37 @@ class Pipeline(object):
 
     def close_spider(self, spider):
         if len(self.items) == 0:
-            self.session.close()
             return
+
         targets = self.session.query(Video).filter(Video.vid.in_([n['vid'] for n in self.items])).with_entities(
             Video.vid, Video.id).all()
 
-        id_with_vid = dict(targets)
+        vid_with_id = dict(targets)
 
         update = []
+        insert = []
+        now = datetime.datetime.now()
 
         for item in self.items:
-            if item['vid'] in list(id_with_vid.keys()):
-                update.append({
-                    'id': id_with_vid[item['vid']],
-                    'print_screen': item['print_screen'],
-                    'update_time': datetime.datetime.now()
-                })
+            if item['vid'] in list(vid_with_id.keys()):
+                info = Nyaa()
+                info['speeders'] = item['speeders']
+                info['downloads'] = item['downloads']
+                info['completed'] = item['completed']
+                info['id'] = vid_with_id[item['vid']]
+                info['update_time'] = now
+                update.append(info)
+            else:
+                item['id'] = get_snowflake_uuid()
+                item['create_time'] = now
+                item['update_time'] = now
+                item['state'] = 1
+                insert.append(item)
 
         self.session.bulk_update_mappings(Video, update)
         self.session.commit()
+
+        self.session.bulk_insert_mappings(Video, insert)
+        self.session.commit()
+
         self.session.close()
