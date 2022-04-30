@@ -29,8 +29,10 @@ class Pipeline(object):
         targets = self.session.query(Video).filter(Video.vid.in_([n['vid'] for n in self.items])).with_entities(
             Video.id, Video.vid, Video.create_date).all()
 
+        product_list = set([n['product'] for n in self.items])
+
         pid_list = self.session.query(Product).filter(
-            Product.name.in_([n['product'] for n in self.items])).with_entities(Product.name, Product.id).all()
+            Product.name.in_(product_list)).with_entities(Product.name, Product.id).all()
 
         pid_list = [(pn.decode('utf-8'), pd) for pn, pd in pid_list]
 

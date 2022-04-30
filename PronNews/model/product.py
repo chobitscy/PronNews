@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
 from PronNews.model.base import Base
@@ -16,6 +16,8 @@ class Product(basics, Base):
     name = Column(Text)
     home = Column(Text)
     avatar = Column(String)
+    works = Column(Integer)
+    fans = Column(Integer)
 
     def __init__(self, name, home, avatar):
         self.name = name
