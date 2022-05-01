@@ -1,7 +1,7 @@
 import scrapy
 from bs4 import BeautifulSoup
 
-from PronNews.items.nyaa import Nyaa
+from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
 
 
@@ -37,7 +37,7 @@ class FCDSpider(scrapy.Spider, DataMixin):
         create_date = create_date_ele[0].get_text().split(':')[1].strip() if len(create_date_ele) > 0 else None
         product_ele = soup.select('.items_article_StarA+ li a')
         product, product_home = product_ele[0].get_text(), product_ele[0].get('href') if len(product_ele) != 0 else None
-        info = Nyaa()
+        info = Video()
         info['vid'] = meta['vid']
         info['screenshot'] = screenshot
         info['thumb'] = thumb

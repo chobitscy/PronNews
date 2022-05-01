@@ -3,7 +3,7 @@ import scrapy
 from PronNews.items.base import base
 
 
-class Nyaa(base):
+class Video(base):
     title = scrapy.Field()
     pub_date = scrapy.Field()
     info_hash = scrapy.Field()

@@ -7,7 +7,7 @@ import scrapy
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
 
-from PronNews.items.nyaa import Nyaa
+from PronNews.items.video import Video
 from PronNews.utils import schedule
 
 
@@ -40,7 +40,7 @@ class Fc2Spider(scrapy.Spider):
                 downloads = int(item.select('.text-center:nth-child(7)')[0].get_text())
                 completed = int(item.select('.text-center:nth-child(8)')[0].get_text())
                 size = self.size_to_MIB(item.select('.text-center:nth-child(4)')[0].get_text())
-                info = Nyaa()
+                info = Video()
                 info['vid'] = vid
                 info['title'] = title
                 info['pub_date'] = pub_date

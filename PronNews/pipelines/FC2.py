@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from PronNews import settings
-from PronNews.items.nyaa import Nyaa
+from PronNews.items.video import Nyaa
 from PronNews.model.video import Video
 from PronNews.utils import get_snowflake_uuid
 

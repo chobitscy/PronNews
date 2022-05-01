@@ -4,7 +4,7 @@ from functools import reduce
 import scrapy
 from bs4 import BeautifulSoup
 
-from PronNews.items.nyaa import Nyaa
+from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
 from PronNews.utils import figure_from_str
 
@@ -40,7 +40,7 @@ class FCRSpider(scrapy.Spider, DataMixin):
             rate_list = [rate * index for index, rate in enumerate(rate_list, 1)]
             rate = reduce(lambda x, y: x + y, rate_list) if len(rate_list) != 0 else 0
             likes = figure_from_str(soup.select('.items_comment_headerInfo li:nth-child(1)')[0].get_text())
-            info = Nyaa()
+            info = Video()
             info['vid'] = meta['vid']
             info['rate'] = rate
             info['comments'] = comments

@@ -3,7 +3,7 @@ import json
 import scrapy
 from bs4 import BeautifulSoup
 
-from PronNews.items.nyaa import Nyaa
+from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
 
 
@@ -32,7 +32,7 @@ class JT(scrapy.Spider, DataMixin):
         meta = response.meta
         soup = BeautifulSoup(response.text, 'lxml')
         selector = soup.select('.show-image')[0].get('data-image')
-        item = Nyaa()
+        item = Video()
         item['vid'] = meta['vid']
         item['print_screen'] = ','.join([n['src'] for n in json.loads(selector)])
         yield item
