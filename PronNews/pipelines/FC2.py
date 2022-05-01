@@ -4,7 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from PronNews import settings
-from PronNews.items.video import Video
+from PronNews.items.video import Video as VD
+from PronNews.model.todo import Todo
 from PronNews.model.video import Video
 from PronNews.utils import get_snowflake_uuid
 
@@ -38,7 +39,7 @@ class Pipeline(object):
 
         for item in self.items:
             if item['vid'] in list(vid_with_id.keys()):
-                info = Video()
+                info = VD()
                 info['speeders'] = item['speeders']
                 info['downloads'] = item['downloads']
                 info['completed'] = item['completed']
@@ -57,5 +58,9 @@ class Pipeline(object):
 
         self.session.bulk_insert_mappings(Video, insert)
         self.session.commit()
+
+        if spider.name == 'FCA':
+            self.session.query(Todo).filter(Todo.vid.in_([n['vid'] for n in self.items])).delete()
+            self.session.commit()
 
         self.session.close()

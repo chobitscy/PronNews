@@ -30,3 +30,11 @@ def figure_from_str(text: str):
         return int(''.join(re.findall(r"\d+", text)))
     except ValueError:
         return 0
+
+
+def size_to_MIB(size: str):
+    number = float(re.findall(r"\d+\.?\d*", size)[0])
+    if size.find('GiB') != -1:
+        return number * 1024
+    elif size.find('MiB') != -1:
+        return number

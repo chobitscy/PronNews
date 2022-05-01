@@ -32,3 +32,19 @@ class DataMixin(object):
                             password=_config['password'], db=_config['db'], )
         redis.flushall()
         redis.close()
+
+    @staticmethod
+    def operation(sql):
+        db_config = settings.MYSQL
+        host = db_config['host']
+        port = db_config['port']
+        user = db_config['user']
+        password = db_config['passwd']
+        db = db_config['db']
+        connect = pymysql.connect(host=host, port=port, user=user, password=password, db=db,
+                                  cursorclass=pymysql.cursors.DictCursor)
+        cursor = connect.cursor()
+        cursor.execute(sql)
+        connect.commit()
+        cursor.close()
+        connect.close()

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from dateutil.parser import parse
 
 from PronNews.items.video import Video
-from PronNews.utils import schedule
+from PronNews.utils import schedule, size_to_MIB
 
 
 class Fc2Spider(scrapy.Spider):
@@ -38,7 +38,7 @@ class Fc2Spider(scrapy.Spider):
                 speeders = int(item.select('.text-center:nth-child(6)')[0].get_text())
                 downloads = int(item.select('.text-center:nth-child(7)')[0].get_text())
                 completed = int(item.select('.text-center:nth-child(8)')[0].get_text())
-                size = self.size_to_MIB(item.select('.text-center:nth-child(4)')[0].get_text())
+                size = size_to_MIB(item.select('.text-center:nth-child(4)')[0].get_text())
                 info = Video()
                 info['vid'] = vid
                 info['title'] = title
@@ -54,13 +54,6 @@ class Fc2Spider(scrapy.Spider):
             self.page_no += 1
             yield scrapy.Request(self.base_site % self.page_no, self.parse)
 
-    @staticmethod
-    def size_to_MIB(size: str):
-        number = float(re.findall(r"\d+\.?\d*", size)[0])
-        if size.find('GiB') != -1:
-            return number * 1024
-        elif size.find('MiB') != -1:
-            return number
 
     def close(self, spider, reason):
         task_list = [

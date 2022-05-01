@@ -19,7 +19,7 @@ class FCDSpider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE create_date is NOT NULL AND state = 1 LIMIT 1"
+        sql = "SELECT id,vid FROM video WHERE create_date is NULL AND state = 1"
         super().custom(sql)
 
     def start_requests(self):
@@ -38,7 +38,10 @@ class FCDSpider(scrapy.Spider, DataMixin):
         create_date_ele = soup.select('.items_article_Releasedate p')
         create_date = create_date_ele[0].get_text().split(':')[1].strip() if len(create_date_ele) > 0 else None
         product_ele = soup.select('.items_article_StarA+ li a')
-        product, product_home = product_ele[0].get_text(), product_ele[0].get('href') if len(product_ele) != 0 else None
+        if len(product_ele) != 0:
+            product, product_home = product_ele[0].get_text(), product_ele[0].get('href')
+        else:
+            product, product_home = None, None
         info = Video()
         info['id'] = target['id']
         info['vid'] = target['vid']

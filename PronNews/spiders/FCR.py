@@ -22,7 +22,7 @@ class FCRSpider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()" \
+        sql = "SELECT id,vid FROM video WHERE create_time BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()" \
               " AND state = 1"
         super().custom(sql)
 

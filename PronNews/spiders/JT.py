@@ -20,8 +20,7 @@ class JT(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        sql = "SELECT id,vid FROM video WHERE print_screen IS NULL AND " \
-              "pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()"
+        sql = "SELECT id,vid FROM video WHERE print_screen IS NULL"
         super().custom(sql)
 
     def start_requests(self):
