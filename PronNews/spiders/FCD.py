@@ -1,3 +1,5 @@
+import datetime
+
 import scrapy
 from bs4 import BeautifulSoup
 
@@ -17,16 +19,16 @@ class FCDSpider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT vid FROM video WHERE create_date is NULL AND state = 1"
+        sql = "SELECT id,vid FROM video WHERE create_date is NOT NULL AND state = 1 LIMIT 1"
         super().custom(sql)
 
     def start_requests(self):
         for result in self.results:
             vid = result['vid']
-            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'vid': vid})
+            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': result})
 
     def parse(self, response, **kwargs):
-        meta = response.meta
+        target = response.meta['target']
         soup = BeautifulSoup(response.text, 'lxml')
         screenshot_list = soup.select('.items_article_SampleImagesArea img')
         screenshot = ','.join([n.get('src')[35:] for n in screenshot_list]) if len(screenshot_list) != 0 else ''
@@ -38,13 +40,15 @@ class FCDSpider(scrapy.Spider, DataMixin):
         product_ele = soup.select('.items_article_StarA+ li a')
         product, product_home = product_ele[0].get_text(), product_ele[0].get('href') if len(product_ele) != 0 else None
         info = Video()
-        info['vid'] = meta['vid']
+        info['id'] = target['id']
+        info['vid'] = target['vid']
         info['screenshot'] = screenshot
         info['thumb'] = thumb
         info['product'] = product
         info['product_home'] = product_home
         info['tid'] = tags
         info['create_date'] = create_date
+        info['update_time'] = datetime.datetime.now()
         yield info
 
     def close(self, spider, reason):

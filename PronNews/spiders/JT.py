@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import scrapy
@@ -19,20 +20,25 @@ class JT(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        sql = "SELECT vid FROM video WHERE print_screen IS NULL AND " \
+        sql = "SELECT id,vid FROM video WHERE print_screen IS NULL AND " \
               "pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()"
         super().custom(sql)
 
     def start_requests(self):
         for result in self.results:
             vid = result['vid']
-            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'vid': vid})
+            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': result})
 
     def parse(self, response, **kwargs):
-        meta = response.meta
-        soup = BeautifulSoup(response.text, 'lxml')
-        selector = soup.select('.show-image')[0].get('data-image')
-        item = Video()
-        item['vid'] = meta['vid']
-        item['print_screen'] = ','.join([n['src'] for n in json.loads(selector)])
-        yield item
+        try:
+            target = response.meta['target']
+            soup = BeautifulSoup(response.text, 'lxml')
+            selector = soup.select('.show-image')[0].get('data-image')
+            item = Video()
+            item['id'] = target['id']
+            item['vid'] = target['vid']
+            item['print_screen'] = ','.join([n['src'] for n in json.loads(selector)])
+            item['update_time'] = datetime.datetime.now()
+            yield item
+        except IndexError:
+            pass

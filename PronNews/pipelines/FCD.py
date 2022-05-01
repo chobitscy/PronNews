@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -26,9 +24,6 @@ class Pipeline(object):
         if len(self.items) == 0:
             return
 
-        targets = self.session.query(Video).filter(Video.vid.in_([n['vid'] for n in self.items])).with_entities(
-            Video.id, Video.vid, Video.create_date).all()
-
         product_list = set([n['product'] for n in self.items])
 
         pid_list = self.session.query(Product).filter(
@@ -39,19 +34,8 @@ class Pipeline(object):
         # name -> pid
         name_with_pid = dict(pid_list)
 
-        # vid -> {id,cd}
-        id_with_vd = {}
-        for _id, vid, cd in targets:
-            id_with_vd[vid] = {
-                'id': _id,
-                'cd': cd
-            }
-
         for item in self.items:
-            create_date = id_with_vd[item['vid']]['cd']
-            item['id'] = id_with_vd[item['vid']]['id']
-            item['update_time'] = datetime.datetime.now()
-            if item['create_date'] is not None and create_date is None:
+            if item['create_date'] is not None:
                 product = item['product']
                 if product in list(name_with_pid.keys()):
                     pid = name_with_pid[product]
@@ -61,7 +45,7 @@ class Pipeline(object):
                     self.session.add(pd)
                     self.session.commit()
                 item['pid'] = pid
-            elif item['create_date'] is None:
+            else:
                 item['pid'] = None
                 item['state'] = -1
 

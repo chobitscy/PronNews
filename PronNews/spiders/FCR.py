@@ -1,3 +1,4 @@
+import datetime
 from copy import deepcopy
 from functools import reduce
 
@@ -21,18 +22,18 @@ class FCRSpider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()" \
+        sql = "SELECT id,vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()" \
               " AND state = 1"
         super().custom(sql)
 
     def start_requests(self):
         for result in self.results:
             vid = result['vid']
-            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'vid': vid})
+            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': result})
 
     def parse(self, response, **kwargs):
         try:
-            meta = response.meta
+            target = response.meta['target']
             soup = BeautifulSoup(response.text, 'lxml')
             selector = soup.select('.items_comment_headerReviewInArea li > span')
             rate_list = reversed([int(n.get_text()) for n in selector])
@@ -41,10 +42,12 @@ class FCRSpider(scrapy.Spider, DataMixin):
             rate = reduce(lambda x, y: x + y, rate_list) if len(rate_list) != 0 else 0
             likes = figure_from_str(soup.select('.items_comment_headerInfo li:nth-child(1)')[0].get_text())
             info = Video()
-            info['vid'] = meta['vid']
+            info['id'] = target['id']
+            info['vid'] = target['vid']
             info['rate'] = rate
             info['comments'] = comments
             info['likes'] = likes
+            info['update_time'] = datetime.datetime.now()
             yield info
         except IndexError:
             pass

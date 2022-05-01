@@ -2,7 +2,6 @@ import datetime
 import re
 import time
 
-import requests
 import scrapy
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
