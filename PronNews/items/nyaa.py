@@ -22,3 +22,5 @@ class Nyaa(base):
     url = scrapy.Field()
     product_avatar = scrapy.Field()
     pid = scrapy.Field()
+    comments = scrapy.Field()
+    likes = scrapy.Field()

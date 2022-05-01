@@ -26,3 +26,5 @@ class Video(basics, Base):
     pid = Column(BigInteger)
     tid = Column(Text)
     aid = Column(BigInteger)
+    comments = Column(Integer)
+    likes = Column(Integer)

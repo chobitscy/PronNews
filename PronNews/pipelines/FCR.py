@@ -25,21 +25,16 @@ class Pipeline(object):
         if len(self.items) == 0:
             self.session.close()
             return
+
         targets = self.session.query(Video).filter(Video.vid.in_([n['vid'] for n in self.items])).with_entities(
             Video.vid, Video.id).all()
 
         id_with_vid = dict(targets)
 
-        update = []
-
         for item in self.items:
-            if item['vid'] in list(id_with_vid.keys()):
-                update.append({
-                    'id': id_with_vid[item['vid']],
-                    'rate': item['rate'],
-                    'update_time': datetime.datetime.now()
-                })
+            item['id'] = id_with_vid[item['vid']]
+            item['update_time'] = datetime.datetime.now()
 
-        self.session.bulk_update_mappings(Video, update)
+        self.session.bulk_update_mappings(Video, self.items)
         self.session.commit()
         self.session.close()

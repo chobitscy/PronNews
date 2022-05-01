@@ -1,3 +1,4 @@
+from copy import deepcopy
 from functools import reduce
 
 import scrapy
@@ -5,6 +6,7 @@ from bs4 import BeautifulSoup
 
 from PronNews.items.nyaa import Nyaa
 from PronNews.mixin.dateMixin import DataMixin
+from PronNews.utils import figure_from_str
 
 
 class FCRSpider(scrapy.Spider, DataMixin):
@@ -29,16 +31,23 @@ class FCRSpider(scrapy.Spider, DataMixin):
             yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'vid': vid})
 
     def parse(self, response, **kwargs):
-        meta = response.meta
-        soup = BeautifulSoup(response.text, 'lxml')
-        selector = soup.select('.items_comment_headerReviewInArea li > span')
-        rate_list = reversed([int(n.get_text()) for n in selector])
-        rate_list = [rate * index for index, rate in enumerate(rate_list, 1)]
-        rate = reduce(lambda x, y: x + y, rate_list) if len(rate_list) != 0 else 0
-        nyaa = Nyaa()
-        nyaa['vid'] = meta['vid']
-        nyaa['rate'] = rate
-        yield nyaa
+        try:
+            meta = response.meta
+            soup = BeautifulSoup(response.text, 'lxml')
+            selector = soup.select('.items_comment_headerReviewInArea li > span')
+            rate_list = reversed([int(n.get_text()) for n in selector])
+            comments = sum(deepcopy(rate_list))
+            rate_list = [rate * index for index, rate in enumerate(rate_list, 1)]
+            rate = reduce(lambda x, y: x + y, rate_list) if len(rate_list) != 0 else 0
+            likes = figure_from_str(soup.select('.items_comment_headerInfo li:nth-child(1)')[0].get_text())
+            info = Nyaa()
+            info['vid'] = meta['vid']
+            info['rate'] = rate
+            info['comments'] = comments
+            info['likes'] = likes
+            yield info
+        except IndexError:
+            pass
 
     def close(self, spider, reason):
         super().flushall()
