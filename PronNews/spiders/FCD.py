@@ -26,7 +26,7 @@ class FCDSpider(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE create_date is NOT NULL AND state = 1 LIMIT 10"
+        sql = "SELECT id,vid FROM video WHERE create_date is NULL AND state = 1"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
@@ -59,4 +59,4 @@ class FCDSpider(RedisSpider, DataMixin):
         info['tid'] = tags
         info['create_date'] = create_date
         info['update_time'] = datetime.datetime.now()
-        print(info)
+        yield info
