@@ -3,12 +3,13 @@ import json
 
 import scrapy
 from bs4 import BeautifulSoup
+from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
 
 
-class JT(scrapy.Spider, DataMixin):
+class JT(RedisSpider, DataMixin):
     name = 'JT'
     allowed_domains = ['jav-torrent.org']
     base_url = 'https://jav-torrent.org/search?keyword=%s'

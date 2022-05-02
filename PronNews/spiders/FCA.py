@@ -5,13 +5,14 @@ import re
 import scrapy
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
+from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
 from PronNews.utils import size_to_MIB, schedule
 
 
-class FCASpider(scrapy.Spider, DataMixin):
+class FCASpider(RedisSpider, DataMixin):
     name = 'FCA'
     allowed_domains = ['adult.contents.fc2.com'],
     redis_key = name
