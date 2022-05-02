@@ -1,4 +1,5 @@
 import datetime
+import json
 from copy import deepcopy
 from functools import reduce
 
@@ -14,10 +15,15 @@ class FCRSpider(scrapy.Spider, DataMixin):
     name = 'FCR'
     allowed_domains = ['adult.contents.fc2.com']
     base_url = 'https://adult.contents.fc2.com/article/%s/review'
+    redis_key = name
     custom_settings = {
         'ITEM_PIPELINES': {
             'PronNews.pipelines.FCR.Pipeline': 500,
-        }
+        },
+        'EXTENSIONS': {
+            'PronNews.extends.closed.CloseSpiderRedis': 500
+        },
+        'CLOSE_SPIDER_AFTER_IDLE_TIMES': 1
     }
 
     def __init__(self, *args, **kwargs):
@@ -25,11 +31,12 @@ class FCRSpider(scrapy.Spider, DataMixin):
         sql = "SELECT id,vid FROM video WHERE create_time BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()" \
               " AND state = 1"
         super().custom(sql)
+        super().push(self.redis_key, self.results)
 
-    def start_requests(self):
-        for result in self.results:
-            vid = result['vid']
-            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': result})
+    def make_requests_from_url(self, item):
+        item = json.loads(item)
+        vid = item['vid']
+        yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': item})
 
     def parse(self, response, **kwargs):
         try:
@@ -51,6 +58,3 @@ class FCRSpider(scrapy.Spider, DataMixin):
             yield info
         except IndexError:
             pass
-
-    def close(self, spider, reason):
-        super().flushall()
