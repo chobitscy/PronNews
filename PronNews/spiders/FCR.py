@@ -5,13 +5,14 @@ from functools import reduce
 
 import scrapy
 from bs4 import BeautifulSoup
+from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
 from PronNews.utils import figure_from_str
 
 
-class FCRSpider(scrapy.Spider, DataMixin):
+class FCRSpider(RedisSpider, DataMixin):
     name = 'FCR'
     allowed_domains = ['adult.contents.fc2.com']
     base_url = 'https://adult.contents.fc2.com/article/%s/review'

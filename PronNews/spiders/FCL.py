@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 
 from PronNews.items.todo import Todo
 from PronNews.mixin.dateMixin import DataMixin
-from PronNews.utils import schedule
 
 
 class FCLSpider(scrapy.Spider, DataMixin):
