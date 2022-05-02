@@ -1,31 +1,38 @@
 import datetime
+import json
 
 import scrapy
 from bs4 import BeautifulSoup
+from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
 
 
-class FCDSpider(scrapy.Spider, DataMixin):
+class FCDSpider(RedisSpider, DataMixin):
     name = 'FCD'
     allowed_domains = ['adult.contents.fc2.com']
     base_url = 'https://adult.contents.fc2.com/article/%s/'
+    redis_key = 'FCD'
     custom_settings = {
         'ITEM_PIPELINES': {
             'PronNews.pipelines.FCD.Pipeline': 500,
-        }
+        },
+        'EXTENSIONS': {
+            'PronNews.extends.closed.CloseSpiderRedis': 500
+        },
+        'CLOSE_SPIDER_AFTER_IDLE_TIMES': 1
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
         sql = "SELECT id,vid FROM video WHERE create_date is NULL AND state = 1"
         super().custom(sql)
+        super().push(self.redis_key, self.results)
 
-    def start_requests(self):
-        for result in self.results:
-            vid = result['vid']
-            yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': result})
+    def make_requests_from_url(self, item):
+        item = json.loads(item)
+        yield scrapy.Request(self.base_url % item['vid'], callback=self.parse, meta={'target': item})
 
     def parse(self, response, **kwargs):
         target = response.meta['target']
@@ -53,6 +60,3 @@ class FCDSpider(scrapy.Spider, DataMixin):
         info['create_date'] = create_date
         info['update_time'] = datetime.datetime.now()
         yield info
-
-    def close(self, spider, reason):
-        super().flushall()

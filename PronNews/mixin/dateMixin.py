@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import json
+
 import pymysql
 from redis import StrictRedis
 
@@ -48,3 +50,13 @@ class DataMixin(object):
         connect.commit()
         cursor.close()
         connect.close()
+
+    @staticmethod
+    def push(redis_key, results):
+        _config = settings.REDIS
+        redis = StrictRedis(host=_config['host'], port=_config['port'], username=_config['user'],
+                            password=_config['password'], db=_config['db'], )
+        if redis.exists(redis_key) == 0:
+            for n in results:
+                redis.rpush(redis_key, json.dumps({"id": n['id'], "vid": n['vid']}))
+        redis.close()
