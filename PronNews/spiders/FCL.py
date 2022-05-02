@@ -47,11 +47,3 @@ class FCLSpider(scrapy.Spider, DataMixin):
                 yield scrapy.Request(url, callback=self.parse, meta={'target': target, 'page': page})
         except IndexError:
             pass
-
-    def close(self, spider, reason):
-        task_list = [
-            {'project': 'PN', 'spider': 'FCA'},
-            {'project': 'PN', 'spider': 'FCR'},
-            {'project': 'PN', 'spider': 'JT'}
-        ]
-        schedule(task_list)

@@ -7,7 +7,7 @@ from dateutil.parser import parse
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
-from PronNews.utils import size_to_MIB
+from PronNews.utils import size_to_MIB, schedule
 
 
 class FCASpider(scrapy.Spider, DataMixin):
@@ -21,7 +21,7 @@ class FCASpider(scrapy.Spider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM todo"
+        sql = "SELECT id,vid FROM todo LIMIT 1000"
         super().custom(sql)
 
     def start_requests(self):
@@ -57,3 +57,11 @@ class FCASpider(scrapy.Spider, DataMixin):
         info['downloads'] = downloads
         info['completed'] = completed
         yield info
+
+    def close(self, spider, reason):
+        task_list = [
+            {'project': 'PN', 'spider': 'FCD'},
+            {'project': 'PN', 'spider': 'FCR'},
+            {'project': 'PN', 'spider': 'JT'}
+        ]
+        schedule(task_list)
