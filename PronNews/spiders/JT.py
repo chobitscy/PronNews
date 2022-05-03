@@ -26,7 +26,7 @@ class JT(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        sql = "SELECT id,vid FROM video WHERE print_screen IS NULL WHERE state = 1"
+        sql = "SELECT id,vid FROM video WHERE print_screen IS NULL AND state = 1"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
