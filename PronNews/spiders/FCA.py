@@ -28,7 +28,7 @@ class FCASpider(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM todo LIMIT 1000"
+        sql = "SELECT id,vid FROM todo LIMIT 100"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
@@ -66,10 +66,10 @@ class FCASpider(RedisSpider, DataMixin):
         info['completed'] = completed
         yield info
 
-    def close(self, spider, reason):
-        task_list = [
-            {'project': 'PN', 'spider': 'FCD'},
-            {'project': 'PN', 'spider': 'FCR'},
-            {'project': 'PN', 'spider': 'JT'}
-        ]
-        schedule(task_list)
+    # def close(self, spider, reason):
+    #     task_list = [
+    #         {'project': 'PN', 'spider': 'FCD'},
+    #         {'project': 'PN', 'spider': 'FCR'},
+    #         {'project': 'PN', 'spider': 'JT'}
+    #     ]
+    #     schedule(task_list)
