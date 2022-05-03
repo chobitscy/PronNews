@@ -9,12 +9,11 @@ from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
-from PronNews.utils import size_to_MIB, schedule
+from PronNews.utils import size_to_MIB
 
 
 class FCASpider(RedisSpider, DataMixin):
     name = 'FCA'
-    allowed_domains = ['adult.contents.fc2.com'],
     redis_key = name
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -49,7 +48,11 @@ class FCASpider(RedisSpider, DataMixin):
         item = item[0]
         pub_date = parse(item.select('.text-center:nth-child(5)')[0].get_text())
         pub_date = pub_date.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None)
-        title = item.select('td:nth-child(2) a')[0].get_text()
+        title_ele = item.select('td:nth-child(2) a')
+        if len(title_ele) == 1:
+            title = title_ele[0].get_text()
+        else:
+            title = title_ele[1].get_text()
         vid = re.findall('FC2-PPV-(.*?) ', title)[0]
         info_hash = item.select('.fa-magnet')[0].parent.get('href')[20:60]
         speeders = int(item.select('.text-center:nth-child(6)')[0].get_text())
@@ -64,7 +67,7 @@ class FCASpider(RedisSpider, DataMixin):
         info['speeders'] = speeders
         info['downloads'] = downloads
         info['completed'] = completed
-        yield info
+        print(info)
 
     # def close(self, spider, reason):
     #     task_list = [
