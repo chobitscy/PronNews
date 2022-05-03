@@ -22,7 +22,7 @@ class Fc2Spider(scrapy.Spider):
     page_no = 1
 
     def start_requests(self):
-        yield scrapy.Request(self.base_site % self.page_no, self.parse)
+        yield scrapy.Request(self.base_site % self.page_no, self.parse, dont_filter=True)
 
     def parse(self, response, **kwargs):
         soup = BeautifulSoup(response.text, 'lxml')
@@ -53,7 +53,6 @@ class Fc2Spider(scrapy.Spider):
         if len(items) == count:
             self.page_no += 1
             yield scrapy.Request(self.base_site % self.page_no, self.parse)
-
 
     def close(self, spider, reason):
         task_list = [

@@ -37,7 +37,7 @@ class FCRSpider(RedisSpider, DataMixin):
     def make_requests_from_url(self, item):
         item = json.loads(item)
         vid = item['vid']
-        yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': item})
+        yield scrapy.Request(self.base_url % vid, callback=self.parse, meta={'target': item}, dont_filter=True)
 
     def parse(self, response, **kwargs):
         try:
