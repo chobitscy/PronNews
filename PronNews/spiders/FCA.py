@@ -9,7 +9,7 @@ from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
-from PronNews.utils import size_to_MIB
+from PronNews.utils import size_to_MIB, schedule
 
 
 class FCASpider(RedisSpider, DataMixin):
@@ -27,7 +27,7 @@ class FCASpider(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM todo LIMIT 100"
+        sql = "SELECT id,vid FROM todo LIMIT 1000"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
@@ -53,7 +53,7 @@ class FCASpider(RedisSpider, DataMixin):
             title = title_ele[0].get_text()
         else:
             title = title_ele[1].get_text()
-        vid = re.findall('FC2-PPV-(.*?) ', title)[0]
+        vid = re.findall(r'FC2-PPV-(\d+) ', title)[0]
         info_hash = item.select('.fa-magnet')[0].parent.get('href')[20:60]
         speeders = int(item.select('.text-center:nth-child(6)')[0].get_text())
         downloads = int(item.select('.text-center:nth-child(7)')[0].get_text())
@@ -67,12 +67,12 @@ class FCASpider(RedisSpider, DataMixin):
         info['speeders'] = speeders
         info['downloads'] = downloads
         info['completed'] = completed
-        print(info)
+        yield info
 
-    # def close(self, spider, reason):
-    #     task_list = [
-    #         {'project': 'PN', 'spider': 'FCD'},
-    #         {'project': 'PN', 'spider': 'FCR'},
-    #         {'project': 'PN', 'spider': 'JT'}
-    #     ]
-    #     schedule(task_list)
+    def close(self, spider, reason):
+        task_list = [
+            {'project': 'PN', 'spider': 'FCD'},
+            {'project': 'PN', 'spider': 'FCR'},
+            {'project': 'PN', 'spider': 'JT'}
+        ]
+        schedule(task_list)
