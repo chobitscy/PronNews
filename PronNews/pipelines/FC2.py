@@ -50,7 +50,7 @@ class Pipeline(object):
                 item['id'] = get_snowflake_uuid()
                 item['create_time'] = now
                 item['update_time'] = now
-                item['state'] = 1
+                item['state'] = 3
                 insert.append(item)
 
         self.session.bulk_update_mappings(Video, update)
@@ -59,7 +59,8 @@ class Pipeline(object):
         self.session.bulk_insert_mappings(Video, insert)
         self.session.commit()
 
-        if spider.name == 'FCA':
+        # todo FCA
+        if spider.name == 'FCA_1':
             self.session.query(Todo).filter(Todo.vid.in_([n['vid'] for n in self.items])).delete()
             self.session.commit()
 
