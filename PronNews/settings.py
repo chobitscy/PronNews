@@ -105,11 +105,15 @@ MYSQL = {
     'charset': 'utf8',
 }
 
-SCRAPYD = {
+SCRAPYD = [{
     'host': scrapyd_host,
     'port': scrapyd_port,
     'auth': scrapyd_auth
-}
+}, {
+    'host': scrapyd_host,
+    'port': scrapyd_port,
+    'auth': scrapyd_auth
+}]
 
 REDIS = {
     'host': redis_host,

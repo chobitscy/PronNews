@@ -10,19 +10,32 @@ def get_snowflake_uuid():
     return snowflake.client.get_guid()
 
 
-def schedule(task_list):
+def schedule(task_list, distribution=False):
     for task in task_list:
-        scrapyd = settings.SCRAPYD
-        headers = {
-            'Authorization': scrapyd['auth']
-        }
-        data = {
-            'project': task['project'],
-            'spider': task['spider']
-        }
-        response = requests.post('http://%s:%s/schedule.json' % (scrapyd['host'], scrapyd['port']), data=data,
-                                 headers=headers)
-        response.raise_for_status()
+        if distribution is False:
+            scrapyd = settings.SCRAPYD[0]
+            headers = {
+                'Authorization': scrapyd['auth']
+            }
+            data = {
+                'project': task['project'],
+                'spider': task['spider']
+            }
+            response = requests.post('http://%s:%s/schedule.json' % (scrapyd['host'], scrapyd['port']), data=data,
+                                     headers=headers)
+            response.raise_for_status()
+        else:
+            for scrapyd in settings.SCRAPYD:
+                headers = {
+                    'Authorization': scrapyd['auth']
+                }
+                data = {
+                    'project': task['project'],
+                    'spider': task['spider']
+                }
+                response = requests.post('http://%s:%s/schedule.json' % (scrapyd['host'], scrapyd['port']), data=data,
+                                         headers=headers)
+                response.raise_for_status()
 
 
 def figure_from_str(text: str):

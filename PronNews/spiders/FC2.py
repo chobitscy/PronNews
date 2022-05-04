@@ -56,8 +56,8 @@ class Fc2Spider(scrapy.Spider):
 
     def close(self, spider, reason):
         task_list = [
-            {'project': 'PN', 'spider': 'JT'},
+            {'project': 'PN', 'spider': 'FCD'},
             {'project': 'PN', 'spider': 'FCR'},
-            {'project': 'PN', 'spider': 'FCD'}
+            {'project': 'PN', 'spider': 'JT'}
         ]
-        schedule(task_list)
+        schedule(task_list, distribution=True)
