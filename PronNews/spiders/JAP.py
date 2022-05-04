@@ -50,7 +50,7 @@ class JAP(RedisSpider, DataMixin):
             selector = [n.get('src') for n in soup.select('.screenshot img')]
             info = Video()
             info['id'] = target['id']
-            info['print_screen'] = selector
+            info['print_screen'] = ','.join(selector)
             info['update_time'] = datetime.datetime.now()
             yield info
         except IndexError:
