@@ -29,7 +29,7 @@ class FCR_1Spider(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE state = 3"
+        sql = "SELECT id,vid FROM video WHERE state = -1"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
