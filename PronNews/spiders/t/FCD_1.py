@@ -7,6 +7,7 @@ from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
+from PronNews.utils import schedule
 
 
 class FCD_1Spider(RedisSpider, DataMixin):
@@ -26,7 +27,7 @@ class FCD_1Spider(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE create_date is NULL AND state = -1"
+        sql = "SELECT id,vid FROM video WHERE create_date is NULL AND state = -1 OR state = 3"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
@@ -60,3 +61,9 @@ class FCD_1Spider(RedisSpider, DataMixin):
         info['create_date'] = create_date
         info['update_time'] = datetime.datetime.now()
         yield info
+
+    def close(self, spider, reason):
+        task_list = [
+            {'project': 'PN', 'spider': 'FCR_1'}
+        ]
+        schedule(task_list)
