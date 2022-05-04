@@ -27,7 +27,7 @@ class FCD_1Spider(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE create_date is NULL AND state = -1 OR state = 3"
+        sql = "SELECT id,vid FROM video WHERE create_date is NULL AND (state = -1 OR state = 3)"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
