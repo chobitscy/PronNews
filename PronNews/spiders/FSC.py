@@ -26,8 +26,7 @@ class FSC(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        sql = "SELECT id,vid,cid FROM video WHERE print_screen IS NULL AND state = 1" \
-              " AND pub_date BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) AND NOW()"
+        sql = "SELECT id,vid,cid FROM video WHERE print_screen IS NULL AND cid IS NOT NULL LIMIT 1"
         super().custom(sql)
         super().push(self.redis_key, self.results, cid=True)
 
@@ -40,7 +39,7 @@ class FSC(RedisSpider, DataMixin):
         soup = BeautifulSoup(response.text, 'lxml')
         selector = soup.select('#torrent-description')[0].get_text().split('\n')
         for text in selector:
-            if text != '' and len(re.findall(r'https://(.*?).jpg.html', text)) != 0:
+            if text != '' and len(re.findall(r'https://(.*?)_s.jpg.html', text)) != 0:
                 domain = re.findall(r'https://(.*?)/', text)[0]
                 _id = re.findall(r'https://%s/(.*?)/' % domain, text)[0]
                 data = {

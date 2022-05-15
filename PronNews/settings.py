@@ -17,6 +17,7 @@ scrapyd_host, scrapyd_port = cfg.get('scrapyd', 'host'), cfg.get('scrapyd', 'por
 scrapyd_auth = cfg.get('scrapyd', 'auth')
 redis_host, redis_port = cfg.get('redis', 'host'), cfg.getint('redis', 'port')
 redis_user, redis_password, redis_db = cfg.get('redis', 'user'), cfg.get('redis', 'password'), cfg.getint('redis', 'db')
+update = cfg.get('server', 'update')
 
 BOT_NAME = 'PronNews'
 
@@ -122,6 +123,7 @@ REDIS = {
     'password': redis_password,
     'db': redis_db
 }
+
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 SCHEDULER_PERSIST = True
@@ -129,3 +131,5 @@ SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.SpiderQueue'
 
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
+
+UPDATE = update
