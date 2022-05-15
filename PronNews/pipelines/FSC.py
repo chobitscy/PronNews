@@ -1,5 +1,4 @@
 import datetime
-import os
 import re
 from itertools import groupby
 from operator import itemgetter
@@ -22,9 +21,6 @@ class Pipeline(object):
         self.DBSession = sessionmaker(bind=self.engine)
         self.session = self.DBSession()
         self.items = []
-        self.path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images')
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
 
     def process_item(self, item, spider):
         self.items.append(item)
