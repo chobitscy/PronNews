@@ -52,11 +52,14 @@ class DataMixin(object):
         connect.close()
 
     @staticmethod
-    def push(redis_key, results):
+    def push(redis_key, results, cid=False):
         _config = settings.REDIS
         redis = StrictRedis(host=_config['host'], port=_config['port'], username=_config['user'],
                             password=_config['password'], db=_config['db'], )
         if redis.exists(redis_key) == 0:
             for n in results:
-                redis.rpush(redis_key, json.dumps({"id": n['id'], "vid": n['vid']}))
+                if cid is False:
+                    redis.rpush(redis_key, json.dumps({"id": n['id'], "vid": n['vid']}))
+                else:
+                    redis.rpush(redis_key, json.dumps({"id": n['id'], "vid": n['vid'], "cid": n['cid']}))
         redis.close()

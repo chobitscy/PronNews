@@ -24,3 +24,4 @@ class Video(base):
     pid = scrapy.Field()
     comments = scrapy.Field()
     likes = scrapy.Field()
+    cid = scrapy.Field()

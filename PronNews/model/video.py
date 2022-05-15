@@ -28,3 +28,4 @@ class Video(basics, Base):
     aid = Column(BigInteger)
     comments = Column(Integer)
     likes = Column(Integer)
+    cid = Column(String)
