@@ -30,7 +30,7 @@ class Pipeline(object):
             self.session.close()
             return
 
-        update_api = settings.update
+        update_api = settings.UPDATE
         results = []
         self.items.sort(key=itemgetter('id'))
         for _id, items in groupby(self.items, key=itemgetter('id')):
