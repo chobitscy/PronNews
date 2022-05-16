@@ -40,7 +40,7 @@ class FSC(RedisSpider, DataMixin):
         soup = BeautifulSoup(response.text, 'lxml')
         selector = soup.select('#torrent-description')[0].get_text().split('\n')
         for text in selector:
-            if text != '':
+            if text == '':
                 continue
             if len(re.findall(r'https://(.*?)_s.jpg.html', text)) != 0:
                 domain = re.findall(r'https://(.*?)/', text)[0]
