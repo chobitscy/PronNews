@@ -69,6 +69,6 @@ class Fc2Spider(scrapy.Spider):
         task_list = [
             {'project': 'PN', 'spider': 'FCD'},
             {'project': 'PN', 'spider': 'FCR'},
-            {'project': 'PN', 'spider': 'JT'}
+            {'project': 'PN', 'spider': 'FSC'}
         ]
         schedule(task_list, distribution=True)
