@@ -58,7 +58,7 @@ class FSC(RedisSpider, DataMixin):
                 continue
             domain = pattern[0][1]
             if domain == 'imgblaze.net' or domain == 'imgfrost.net':
-                text.replace(domain, 'imgair.net')
+                text = text.replace(domain, 'imgair.net')
                 yield scrapy.Request(url=text, callback=self.imgair, meta=response.meta)
 
     def cn(self, response):
