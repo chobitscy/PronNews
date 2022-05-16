@@ -29,8 +29,8 @@ class Pipeline(object):
         if len(self.items) == 0:
             self.session.close()
             return
-
         update_api = settings.UPDATE
+        auth = settings.AUTH
         results = []
         self.items.sort(key=itemgetter('id'))
         for _id, items in groupby(self.items, key=itemgetter('id')):
@@ -39,7 +39,8 @@ class Pipeline(object):
             for url in urls:
                 image_name = re.findall(r'/FC2-PPV-(.*?).jpg', url)[0] + '.jpg'
                 response = requests.get(url)
-                requests.post(update_api, files={'file': response.content}, data={'name': image_name})
+                requests.post(update_api, files={'file': response.content},
+                              headers={'Authorization': auth}, data={'name': image_name})
                 print_screen.append(image_name)
             results.append({
                 'id': _id,
@@ -47,6 +48,8 @@ class Pipeline(object):
                 'update_time': datetime.datetime.now()
             })
 
-        self.session.bulk_update_mappings(Video, results)
-        self.session.commit()
+        for result in results:
+            self.session.query(Video).filter(Video.vid == result['id']).update(
+                {Video.print_screen: Video.print_screen + result['print_screen']})
+            self.session.commit()
         self.session.close()
