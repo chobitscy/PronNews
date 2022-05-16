@@ -1,3 +1,4 @@
+import datetime
 import re
 
 import requests
@@ -5,7 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from PronNews import settings
-from PronNews.model.video import Video
 
 
 class Pipeline(object):
@@ -23,12 +23,15 @@ class Pipeline(object):
 
     def process_item(self, item, spider):
         url = item['print_screen']
+        if url is None:
+            return
+        update_time = datetime.datetime.now()
         image_name = re.findall(r'/FC2-PPV-(.*?).jpg', url)[0] + '.jpg'
         response = requests.get(url)
         requests.post(self.update_api, files={'file': response.content},
                       headers={'Authorization': self.auth}, data={'name': image_name})
-        sql = "UPDATE video SET print_screen = IFNULL(CONCAT(print_screen,'%s'),'%s') WHERE id = %s" % \
-              (',' + image_name, image_name, item['id'])
+        sql = "UPDATE video SET print_screen = IFNULL(CONCAT(print_screen,'%s'),'%s'), update_time = '%s' " \
+              "WHERE id = %s" % (',' + image_name, image_name, update_time, item['id'])
         self.session.execute(sql)
         self.session.commit()
 
