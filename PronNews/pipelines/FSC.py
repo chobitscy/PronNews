@@ -25,6 +25,8 @@ class Pipeline(object):
         url = item['print_screen']
         if url is None:
             return
+        if len(re.findall(r'https://(.*?)_s.jpg', url)) == 0:
+            return
         update_time = datetime.datetime.now()
         image_name = re.findall(r'/FC2-PPV-(.*?).jpg', url)[0] + '.jpg'
         response = requests.get(url)
