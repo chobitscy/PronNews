@@ -27,7 +27,7 @@ class Pipeline(object):
         response = requests.get(url)
         requests.post(self.update_api, files={'file': response.content},
                       headers={'Authorization': self.auth}, data={'name': image_name})
-        sql = 'UPDATE video SET print_screen = IFNULL(CONCAT(print_screen,%s),%s) WHERE id = %s' % \
+        sql = "UPDATE video SET print_screen = IFNULL(CONCAT(print_screen,'%s'),'%s') WHERE id = %s" % \
               (',' + image_name, image_name, item['id'])
         self.session.execute(sql)
         self.session.commit()
