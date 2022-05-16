@@ -1,7 +1,4 @@
-import datetime
 import re
-from itertools import groupby
-from operator import itemgetter
 
 import requests
 from sqlalchemy import create_engine
@@ -21,35 +18,18 @@ class Pipeline(object):
         self.DBSession = sessionmaker(bind=self.engine)
         self.session = self.DBSession()
         self.items = []
+        self.update_api = settings.UPDATE
+        self.auth = settings.AUTH
 
     def process_item(self, item, spider):
-        self.items.append(item)
+        url = item['print_screen']
+        image_name = re.findall(r'/FC2-PPV-(.*?).jpg', url)[0] + '.jpg'
+        response = requests.get(url)
+        requests.post(self.update_api, files={'file': response.content},
+                      headers={'Authorization': self.auth}, data={'name': image_name})
+        self.session.query(Video).filter(Video.vid == item['id']).update(
+            {Video.print_screen: Video.print_screen + image_name})
+        self.session.commit()
 
     def close_spider(self, spider):
-        if len(self.items) == 0:
-            self.session.close()
-            return
-        update_api = settings.UPDATE
-        auth = settings.AUTH
-        results = []
-        self.items.sort(key=itemgetter('id'))
-        for _id, items in groupby(self.items, key=itemgetter('id')):
-            urls = [n['print_screen'] for n in items if n['print_screen'] is not None]
-            print_screen = []
-            for url in urls:
-                image_name = re.findall(r'/FC2-PPV-(.*?).jpg', url)[0] + '.jpg'
-                response = requests.get(url)
-                requests.post(update_api, files={'file': response.content},
-                              headers={'Authorization': auth}, data={'name': image_name})
-                print_screen.append(image_name)
-            results.append({
-                'id': _id,
-                'print_screen': ','.join(print_screen),
-                'update_time': datetime.datetime.now()
-            })
-
-        for result in results:
-            self.session.query(Video).filter(Video.vid == result['id']).update(
-                {Video.print_screen: Video.print_screen + result['print_screen']})
-            self.session.commit()
         self.session.close()
