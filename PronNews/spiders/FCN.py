@@ -25,7 +25,7 @@ class FCN(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE cid IS NULL LIMIT 1000"
+        sql = "SELECT id,vid FROM video WHERE cid IS NULL"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
