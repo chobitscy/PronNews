@@ -14,16 +14,13 @@ class Pipeline(object):
         self.engine = create_engine(engine_config)
         self.DBSession = sessionmaker(bind=self.engine)
         self.session = self.DBSession()
-        self.items = []
 
     def process_item(self, item, spider):
-        self.items.append(item)
+        self.session.query(Video).filter(Video.id == item['id']).update({
+            'cid': item['cid'],
+            'update_time': item['update_time']
+        })
+        self.session.commit()
 
     def close_spider(self, spider):
-        if len(self.items) == 0:
-            self.session.close()
-            return
-
-        self.session.bulk_update_mappings(Video, self.items)
-        self.session.commit()
         self.session.close()

@@ -15,7 +15,7 @@ class FCN(RedisSpider, DataMixin):
     redis_key = name
     custom_settings = {
         'ITEM_PIPELINES': {
-            'PronNews.pipelines.JT.Pipeline': 500,
+            'PronNews.pipelines.FCN.Pipeline': 500,
         },
         'EXTENSIONS': {
             'PronNews.extends.closed.CloseSpiderRedis': 500
@@ -25,7 +25,7 @@ class FCN(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE pub_date BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) AND NOW()"
+        sql = "SELECT id,vid FROM video WHERE cid IS NULL LIMIT 1000"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
