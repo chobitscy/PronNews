@@ -5,6 +5,7 @@ from scrapy_redis.spiders import RedisSpider
 from PronNews.mixin.dateMixin import DataMixin
 from PronNews.items.video import Video
 
+from PronNews import settings
 import datetime
 import json
 
@@ -26,7 +27,8 @@ class JAP(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        sql = "SELECT id,vid FROM video WHERE print_screen IS NULL AND state = 1"
+        sql = "SELECT id,vid FROM video WHERE print_screen IS NULL AND state = 1" \
+              " AND pub_date BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) AND NOW()"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 
@@ -55,3 +57,10 @@ class JAP(RedisSpider, DataMixin):
             yield info
         except IndexError:
             pass
+
+    def close(self, spider, reason):
+        if settings.MASTER:
+            task_list = [
+                {'project': 'PN', 'spider': 'FSC'}
+            ]
+            schedule(task_list, distribution=True)

@@ -5,8 +5,10 @@ import scrapy
 from bs4 import BeautifulSoup
 from scrapy_redis.spiders import RedisSpider
 
+from PronNews import settings
 from PronNews.items.video import Video
 from PronNews.mixin.dateMixin import DataMixin
+from PronNews.utils import schedule
 
 
 class JT(RedisSpider, DataMixin):
@@ -49,3 +51,10 @@ class JT(RedisSpider, DataMixin):
         except IndexError:
             item['state'] = -1
         yield item
+
+    def close(self, spider, reason):
+        if settings.MASTER:
+            task_list = [
+                {'project': 'PN', 'spider': 'JAP'}
+            ]
+            schedule(task_list, distribution=True)

@@ -19,6 +19,7 @@ redis_host, redis_port = cfg.get('redis', 'host'), cfg.getint('redis', 'port')
 redis_user, redis_password, redis_db = cfg.get('redis', 'user'), cfg.get('redis', 'password'), cfg.getint('redis', 'db')
 update = cfg.get('server', 'update')
 auth = cfg.get('server', 'auth')
+master = cfg.getboolean('server', 'master')
 
 BOT_NAME = 'PronNews'
 
@@ -135,3 +136,5 @@ REDIS_PORT = 6379
 
 UPDATE = update
 AUTH = auth
+
+MASTER = master
