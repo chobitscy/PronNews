@@ -4,8 +4,8 @@ from scrapy_redis.spiders import RedisSpider
 
 from PronNews.mixin.dateMixin import DataMixin
 from PronNews.items.video import Video
-
 from PronNews import settings
+from PronNews.utils import schedule
 import datetime
 import json
 
