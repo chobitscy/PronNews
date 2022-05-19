@@ -26,7 +26,7 @@ class FSC(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        sql = "SELECT id,vid,cid FROM video WHERE print_screen IS NULL AND state = 1" \
+        sql = "SELECT id,vid,cid FROM video WHERE print_screen IS NULL" \
               " AND pub_date BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) AND NOW()"
         super().custom(sql)
         super().push(self.redis_key, self.results, cid=True)
