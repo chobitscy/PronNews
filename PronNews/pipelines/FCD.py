@@ -16,7 +16,8 @@ class Pipeline(object):
         engine_config = 'mysql+mysqlconnector://%s:%s@%s:%s/%s?charset=utf8' % (
             config['user'], config['passwd'], config['host'], config['port'], config['db'])
         redis_config = settings.REDIS
-        self.key = "product_info"
+        self.FCL_KEY = "product_info_FCL"
+        self.FCP_KEY = "product_info_FCP"
         self.engine = create_engine(engine_config)
         self.DBSession = sessionmaker(bind=self.engine)
         self.session = self.DBSession()
@@ -32,7 +33,9 @@ class Pipeline(object):
             pid = pd.id
             self.session.add(pd)
             self.session.commit()
-            self.redis.rpush(self.key, json.dumps({"pid": pid, "home": pd.home}))
+            data = json.dumps({"pid": pid, "home": pd.home})
+            self.redis.rpush(self.FCL_KEY, data)
+            self.redis.rpush(self.FCP_KEY, data)
         else:
             pid = product.id
         item['pid'] = pid
@@ -47,4 +50,5 @@ class Pipeline(object):
         self.session.commit()
 
     def close_spider(self, spider):
+        self.redis.close()
         self.session.close()
