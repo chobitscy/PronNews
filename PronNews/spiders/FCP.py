@@ -1,36 +1,35 @@
 import datetime
+import json
 
 import scrapy
 from bs4 import BeautifulSoup
+from scrapy_redis.spiders import RedisSpider
 
 from PronNews.items.product import Product
 from PronNews.mixin.dateMixin import DataMixin
 from PronNews.utils import figure_from_str
 
 
-class FCRSpider(scrapy.Spider, DataMixin):
+class FCRSpider(RedisSpider, DataMixin):
     name = 'FCP'
+    redis_key = 'product_info_FCP'
     allowed_domains = ['adult.contents.fc2.com']
     custom_settings = {
         'ITEM_PIPELINES': {
             'PronNews.pipelines.FCP.Pipeline': 500,
-        }
+        },
+        'EXTENSIONS': {
+            'PronNews.extends.closed.CloseSpiderRedis': 500
+        },
+        'CLOSE_SPIDER_AFTER_IDLE_TIMES': 1
     }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(**kwargs)
-        sql = """
-        SELECT * FROM product WHERE home IS NOT NULL 
-            AND create_time BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()
-        """
-        super().custom(sql)
-
-    def start_requests(self):
-        for result in self.results:
-            home = result['home']
-            if home.find('http') == -1:
-                continue
-            yield scrapy.Request(home, callback=self.parse, meta={'id': result['id']})
+    def make_requests_from_url(self, item):
+        item = json.loads(item)
+        home = item['home']
+        if home.find('http') == -1:
+            return
+        yield scrapy.Request(home, callback=self.parse, meta={'id': item['pid']})
 
     def parse(self, response, **kwargs):
         try:
