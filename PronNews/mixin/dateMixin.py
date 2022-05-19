@@ -55,7 +55,7 @@ class DataMixin(object):
     def push(redis_key, results, cid=False):
         _config = settings.REDIS
         redis = StrictRedis(host=_config['host'], port=_config['port'], username=_config['user'],
-                            password=_config['password'], db=_config['db'], )
+                            password=_config['password'], db=_config['db'])
         if redis.exists(redis_key) == 0:
             for n in results:
                 if cid is False:
