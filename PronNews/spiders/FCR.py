@@ -29,8 +29,9 @@ class FCRSpider(RedisSpider, DataMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM video WHERE pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()" \
-              " AND state = 1"
+        sql = "SELECT id,vid FROM video WHERE state = 1 AND " \
+              "(pub_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND NOW()) " \
+              "OR (rate IS NULL AND comments IS NULL AND likes IS NULL)"
         super().custom(sql)
         super().push(self.redis_key, self.results)
 

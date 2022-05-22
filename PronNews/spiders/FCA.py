@@ -14,7 +14,7 @@ from PronNews.utils import size_to_MIB, schedule
 
 class FCASpider(RedisSpider, DataMixin):
     name = 'FCA'
-    redis_key = name
+    redis_key = "product_vid"
     custom_settings = {
         'ITEM_PIPELINES': {
             'PronNews.pipelines.FC2.Pipeline': 500,
@@ -24,12 +24,6 @@ class FCASpider(RedisSpider, DataMixin):
         },
         'CLOSE_SPIDER_AFTER_IDLE_TIMES': 1
     }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(**kwargs)
-        sql = "SELECT id,vid FROM todo LIMIT 1000"
-        super().custom(sql)
-        super().push(self.redis_key, self.results)
 
     def make_requests_from_url(self, item):
         item = json.loads(item)
@@ -51,8 +45,10 @@ class FCASpider(RedisSpider, DataMixin):
         title_ele = item.select('td:nth-child(2) a')
         if len(title_ele) == 1:
             title = title_ele[0].get_text()
+            url = title_ele[0].get('href')
         else:
             title = title_ele[1].get_text()
+            url = title_ele[1].get('href')
         vid = re.findall(r'FC2-PPV-(\d+) ', title)[0]
         info_hash = item.select('.fa-magnet')[0].parent.get('href')[20:60]
         speeders = int(item.select('.text-center:nth-child(6)')[0].get_text())
@@ -67,7 +63,8 @@ class FCASpider(RedisSpider, DataMixin):
         info['speeders'] = speeders
         info['downloads'] = downloads
         info['completed'] = completed
-        yield info
+        info['cid'] = re.findall(r'/view/(\d+)', url)[0]
+        print(info)
 
     def close(self, spider, reason):
         task_list = [
@@ -75,4 +72,4 @@ class FCASpider(RedisSpider, DataMixin):
             {'project': 'PN', 'spider': 'FCR'},
             {'project': 'PN', 'spider': 'JT'}
         ]
-        schedule(task_list)
+        schedule(task_list, distribution=True)
